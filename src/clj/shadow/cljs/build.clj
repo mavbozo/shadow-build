@@ -1,5 +1,6 @@
 (ns shadow.cljs.build
   (:import [java.io File PrintStream StringWriter StringReader]
+           [java.util.regex.Pattern]
            [java.net URL]
            [com.google.javascript.jscomp JSModule SourceFile CompilerOptions$DevMode CompilerOptions$TracerMode])
   (:require [clojure.pprint :refer (pprint)]
@@ -219,7 +220,10 @@
           :when (and (is-cljs-resource? abs-path)
                      (not (.isHidden file)))
           :let [rel-path (.substring abs-path root-len)]]
-      {:name rel-path
+      {:name (str/join "/"  (-> rel-path
+                                (clojure.string/split (-> (File/separator)
+                                                          (Pattern/quote)
+                                                          (re-pattern)))))
        :file file
        :source-path path
        :last-modified (.lastModified file)
